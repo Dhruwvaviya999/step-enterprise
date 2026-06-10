@@ -59,12 +59,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
       { href: "/dashboard/products", label: "Products", icon: Package, roles: ALL_ROLES },
       { href: "/dashboard/brands", label: "Brands", icon: Tag, roles: ALL_ROLES },
       { href: "/dashboard/categories", label: "Categories", icon: Layers, roles: ALL_ROLES },
-      {
-        href: "/dashboard/suppliers",
-        label: "Suppliers",
-        icon: Truck,
-        roles: ["ADMIN", "MANAGER"],
-      },
+      { href: "/dashboard/suppliers", label: "Suppliers", icon: Truck, roles: ALL_ROLES },
       {
         href: "/dashboard/purchase-orders",
         label: "Purchase Orders",
