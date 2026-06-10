@@ -1,0 +1,432 @@
+Inventory Management System Requirements
+
+I am building a multi-company inventory management SaaS for footwear shops.
+
+The first company using it will be Step Enterprise.
+
+The system must be mobile-friendly, installable as a PWA, and optimized for daily inventory operations.
+
+Tech Stack
+Frontend
+Next.js (App Router)
+TypeScript
+Tailwind CSS
+Shadcn UI
+Axios (with centralized axios instance)
+Zustand
+Backend
+Next.js Server Actions / Route Handlers
+Auth.js
+Zod Validation
+Database
+PostgreSQL
+Prisma ORM
+Additional
+Cloudinary
+Recharts
+Nodemailer
+User Roles
+SUPER_ADMIN
+ADMIN
+MANAGER
+STAFF
+SUPER_ADMIN
+
+Platform owner.
+
+Can:
+
+Access all companies
+Manage all companies
+Manage all users
+View everything
+Full system control
+
+companyId = null
+
+ADMIN
+
+Company owner.
+
+Can:
+
+Manage products
+Manage inventory
+Manage suppliers
+Manage users
+Manage reports
+Manage settings
+
+Only inside their company.
+
+MANAGER
+
+Can:
+
+Manage stock
+Create purchase orders
+Receive stock
+Create sales
+Transfer stock
+View reports
+
+Cannot manage company settings or admins.
+
+STAFF
+
+Can:
+
+View inventory
+Search products
+Create sales
+Update stock
+
+Cannot manage users or settings.
+
+Company Model
+
+A company represents a business.
+
+Example:
+
+Step Enterprise
+
+Fields:
+
+id
+name
+code
+logoUrl
+email
+phone
+address
+city
+state
+country
+isActive
+createdAt
+updatedAt
+
+Example:
+
+name = Step Enterprise
+code = STEP
+Product Structure
+
+A product contains:
+
+Article No
+Article Name
+Brand
+Category
+Selling Price
+Default Purchase Price
+
+Example:
+
+Article No: CR001
+Article Name: Crocs Classic
+Product Variants
+
+Each product can have variants.
+
+Fields:
+
+Size
+Color
+Shop Quantity
+Godown Quantity
+Minimum Stock
+
+Examples:
+
+7 Small - Black
+8 Small - Black
+9 Big - Blue
+
+Size is stored as:
+
+size String
+
+Not:
+
+sizeNumber
+sizeType
+Stock Locations
+
+Only two locations:
+
+SHOP
+GODOWN
+Supplier Management
+
+Supplier contains:
+
+Name
+Phone
+Email
+Address
+Purchase Order Flow
+
+A purchase order can be:
+
+DRAFT
+PENDING
+PARTIAL
+RECEIVED
+CANCELLED
+
+Example:
+
+Order:
+
+100 pcs of 7 Small Black
+
+Received:
+
+70 pcs
+
+Pending:
+
+30 pcs
+
+Pending quantity is calculated:
+
+orderedQty - receivedQty
+
+Not stored separately.
+
+Sales Order Flow
+
+Sales Order:
+
+Invoice Number
+Status
+Total Amount
+Date
+
+Sales Order Items:
+
+Variant
+Quantity
+Unit Price
+Total Price
+
+Example:
+
+2 pcs of 7 Small Black
+Stock Transfer Flow
+
+Transfer stock between:
+
+SHOP
+GODOWN
+
+Example:
+
+Move 10 pcs
+
+FROM: GODOWN
+TO: SHOP
+Inventory Movement
+
+This is the audit/history table.
+
+Tracks:
+
+PURCHASE
+SALE
+TRANSFER_IN
+TRANSFER_OUT
+ADJUSTMENT
+PURCHASE_RETURN
+SALES_RETURN
+
+Examples:
+
+PURCHASE +100
+TRANSFER_OUT -10
+TRANSFER_IN +10
+SALE -2
+
+This table provides complete stock history.
+
+Important Features
+Dashboard
+
+Show:
+
+Total Products
+Total Stock
+Low Stock Items
+Recent Purchases
+Recent Sales
+Product Management
+
+CRUD
+
+Search by:
+
+Article No
+Article Name
+Brand
+Category
+Size
+Color
+Supplier Management
+
+CRUD
+
+Purchase Orders
+
+Create orders
+
+Track:
+
+Ordered Quantity
+Received Quantity
+Pending Quantity
+Sales Orders
+
+Create invoices
+
+Reduce stock automatically
+
+Stock Transfers
+
+Transfer:
+
+Shop -> Godown
+Godown -> Shop
+Inventory History
+
+View complete movement history.
+
+Low Stock Alerts
+
+Use:
+
+minStock
+
+Trigger alert when stock goes below minimum.
+
+Reports
+
+Generate:
+
+Stock Report
+Sales Report
+Purchase Report
+Low Stock Report
+Supplier Report
+Naming Conventions
+Prisma
+
+Use:
+
+PascalCase -> Models
+camelCase -> Fields
+
+Example:
+
+model Product {
+  articleNo String
+  articleName String
+  createdAt DateTime
+}
+PostgreSQL
+
+Use:
+
+snake_case
+
+Example:
+
+products
+product_variants
+
+article_no
+article_name
+created_at
+
+Use:
+
+@map()
+@@map()
+IDs
+
+Keep:
+
+id String @id @default(cuid())
+
+Do NOT use:
+
+Int @id @default(autoincrement())
+Multi-Company
+
+Every business record belongs to a company through:
+
+companyId String
+
+Relation:
+
+company Company @relation(
+  fields: [companyId],
+  references: [id]
+)
+
+Keep using Company.id as the foreign key.
+
+Do NOT use company code as the foreign key.
+
+Company code is only for display purposes.
+
+Example:
+
+STEP
+ABC
+XYZ
+Main Goal
+
+Build a production-ready inventory management system that:
+
+Supports multiple companies
+Tracks stock accurately
+Tracks purchases and partial deliveries
+Tracks sales
+Tracks stock transfers
+Maintains inventory history
+Supports role-based access
+Is mobile-first
+Is easy enough for daily business use
+Can later be sold as a SaaS product
+
+This is the final summary of the requirements and architecture decisions we reached.
+
+
+Your new plan
+Phase 1: Company User Side
+
+After login, users will see only their company data:
+
+Dashboard
+Products
+Suppliers
+Purchase Orders
+Sales Orders
+Stock Transfer
+Inventory History
+Reports
+Low Stock Alerts
+
+This is the main working system for Step Enterprise and other companies.
+
+Phase 2: Super Admin Side later
+
+Super admin will do only this for now:
+
+Add company details in companies table
+Create company account
+Maybe create first admin user for that company
+
+So super admin is only for company setup at first.

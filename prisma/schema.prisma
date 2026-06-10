@@ -94,6 +94,7 @@ model User {
   password      String?
   image         String?
   role          UserRole  @default(STAFF)
+  isActive      Boolean   @default(true) @map("is_active")
   emailVerified DateTime? @map("email_verified")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")

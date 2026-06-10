@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, TriangleAlert, Check, ChevronsUpDown } from "lucide-react";
+import { Eye, EyeOff, TriangleAlert } from "lucide-react";
 
 import {
   companyLoginSchema,
+  loginErrorMessage,
   type CompanyLoginInput,
 } from "@/lib/validators/auth";
 import { Button } from "@/components/ui/button";
@@ -22,78 +23,37 @@ import {
   FieldLabel,
   FieldError,
 } from "@/components/ui/field";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { cn } from "@/lib/utils";
-import axiosInstance from "@/lib/axios";
-
-interface CompanyOption {
-  id: string;
-  name: string;
-}
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
 
-  const [companies, setCompanies] = useState<CompanyOption[]>([]);
-  const [loadingCompanies, setLoadingCompanies] = useState(true);
-  const [companyOpen, setCompanyOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors, isSubmitting },
   } = useForm<CompanyLoginInput>({
     resolver: zodResolver(companyLoginSchema),
-    defaultValues: { companyId: "", identifier: "", password: "" },
+    defaultValues: { companyCode: "", username: "", password: "" },
   });
-
-  useEffect(() => {
-    let active = true;
-    axiosInstance
-      .get<{ data: CompanyOption[] }>("/companies/options")
-      .then((res) => {
-        if (active) setCompanies(res.data.data ?? []);
-      })
-      .catch(() => {
-        if (active) setServerError("Couldn't load companies. Refresh to retry.");
-      })
-      .finally(() => {
-        if (active) setLoadingCompanies(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
 
   async function onSubmit(data: CompanyLoginInput) {
     setServerError(null);
 
     const result = await signIn("company-login", {
-      companyId: data.companyId,
-      identifier: data.identifier,
+      companyCode: data.companyCode,
+      username: data.username,
       password: data.password,
       redirect: false,
     });
 
     if (result?.error) {
-      setServerError("Those details don't match an account. Check and retry.");
+      // `code` is set by our LoginError on the server; map it to a message.
+      setServerError(loginErrorMessage(result.code));
       return;
     }
 
@@ -106,7 +66,7 @@ export default function LoginPage() {
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
         <p className="text-sm text-muted-foreground">
-          Choose your company and sign in to continue.
+          Sign in with your company code and username.
         </p>
       </div>
 
@@ -119,94 +79,39 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <FieldGroup>
-          {/* Company selector */}
-          <Field data-invalid={!!errors.companyId}>
-            <FieldLabel htmlFor="company-trigger">Company</FieldLabel>
-            <Controller
-              control={control}
-              name="companyId"
-              render={({ field }) => {
-                const selected = companies.find((c) => c.id === field.value);
-                return (
-                  <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        id="company-trigger"
-                        type="button"
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={companyOpen}
-                        aria-invalid={!!errors.companyId}
-                        disabled={loadingCompanies}
-                        className="w-full justify-between font-normal"
-                      >
-                        <span
-                          className={cn(!selected && "text-muted-foreground")}
-                        >
-                          {loadingCompanies
-                            ? "Loading companies…"
-                            : selected
-                              ? selected.name
-                              : "Select your company"}
-                        </span>
-                        <ChevronsUpDown className="size-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-[--radix-popover-trigger-width] p-0"
-                      align="start"
-                    >
-                      <Command>
-                        <CommandInput placeholder="Search company…" />
-                        <CommandList>
-                          <CommandEmpty>No company found.</CommandEmpty>
-                          <CommandGroup>
-                            {companies.map((company) => (
-                              <CommandItem
-                                key={company.id}
-                                value={company.name}
-                                onSelect={() => {
-                                  field.onChange(company.id);
-                                  setCompanyOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 size-4",
-                                    field.value === company.id
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {company.name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                );
-              }}
+          {/* Company code */}
+          <Field data-invalid={!!errors.companyCode}>
+            <FieldLabel htmlFor="companyCode">Company code</FieldLabel>
+            <Input
+              id="companyCode"
+              placeholder="e.g. ACME-1234"
+              autoComplete="organization"
+              autoCapitalize="characters"
+              spellCheck={false}
+              disabled={isSubmitting}
+              aria-invalid={!!errors.companyCode}
+              {...register("companyCode")}
             />
             <FieldError
-              errors={errors.companyId ? [errors.companyId] : undefined}
+              errors={errors.companyCode ? [errors.companyCode] : undefined}
             />
           </Field>
 
-          {/* Username or email */}
-          <Field data-invalid={!!errors.identifier}>
-            <FieldLabel htmlFor="identifier">Username or email</FieldLabel>
+          {/* Username */}
+          <Field data-invalid={!!errors.username}>
+            <FieldLabel htmlFor="username">Username</FieldLabel>
             <Input
-              id="identifier"
-              placeholder="yourname or you@company.com"
+              id="username"
+              placeholder="e.g. admin01"
               autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
               disabled={isSubmitting}
-              aria-invalid={!!errors.identifier}
-              {...register("identifier")}
+              aria-invalid={!!errors.username}
+              {...register("username")}
             />
             <FieldError
-              errors={errors.identifier ? [errors.identifier] : undefined}
+              errors={errors.username ? [errors.username] : undefined}
             />
           </Field>
 
