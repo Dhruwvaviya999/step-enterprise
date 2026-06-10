@@ -1,38 +1,29 @@
 import { z } from "zod";
 
-export const loginSchema = z.object({
+// ── Company user login ─────────────────────────────────────────────────────
+// User picks a company, then enters username OR email + password.
+export const companyLoginSchema = z.object({
+  companyId: z.string().min(1, "Select your company"),
+  identifier: z.string().min(1, "Enter your username or email"),
+  password: z.string().min(1, "Password is required"),
+});
+
+// ── Super Admin login ──────────────────────────────────────────────────────
+// No company. Username OR email + password.
+export const superAdminLoginSchema = z.object({
+  identifier: z.string().min(1, "Enter your username or email"),
+  password: z.string().min(1, "Password is required"),
+});
+
+// ── Forgot password ────────────────────────────────────────────────────────
+// Email is globally unique, so it's enough on its own to locate the account.
+export const forgotPasswordSchema = z.object({
   email: z
     .string()
     .min(1, "Email is required")
     .email("Enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
 });
 
-export const registerSchema = z
-  .object({
-    companyName: z
-      .string()
-      .min(2, "Company name must be at least 2 characters")
-      .max(100, "Company name is too long"),
-    name: z
-      .string()
-      .min(2, "Name must be at least 2 characters")
-      .max(100, "Name is too long"),
-    email: z
-      .string()
-      .min(1, "Email is required")
-      .email("Enter a valid email address"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Must contain at least one uppercase letter")
-      .regex(/[0-9]/, "Must contain at least one number"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-export type LoginInput = z.infer<typeof loginSchema>;
-export type RegisterInput = z.infer<typeof registerSchema>;
+export type CompanyLoginInput = z.infer<typeof companyLoginSchema>;
+export type SuperAdminLoginInput = z.infer<typeof superAdminLoginSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;

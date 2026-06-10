@@ -45,29 +45,42 @@ enum InventoryMovementType {
 }
 
 model Company {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
 
-  users       User[]
-  categories  Category[]
-  brands      Brand[]
-  suppliers   Supplier[]
+  name        String
+  code        String   @unique
 
-  products    Product[]
+  logoUrl     String?  @map("logo_url")
 
-  productVariants ProductVariant[]
+  email       String?
+  phone       String?
 
-  purchaseOrders PurchaseOrder[]
-  purchaseOrderItems PurchaseOrderItem[]
+  address     String?
 
-  salesOrders SalesOrder[]
-  salesOrderItems SalesOrderItem[]
+  city        String?
+  state       String?
+  country     String?
 
-  stockTransfers StockTransfer[]
+  isActive    Boolean  @default(true) @map("is_active")
 
-  movements InventoryMovement[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  users               User[]
+  categories          Category[]
+  brands              Brand[]
+  suppliers           Supplier[]
+  products            Product[]
+  productVariants     ProductVariant[]
+
+  purchaseOrders      PurchaseOrder[]
+  purchaseOrderItems  PurchaseOrderItem[]
+  salesOrders         SalesOrder[]
+  salesOrderItems     SalesOrderItem[]
+
+  stockTransfers      StockTransfer[]
+  movements           InventoryMovement[]
 
   @@map("companies")
 }
@@ -76,6 +89,7 @@ model User {
   id            String    @id @default(cuid())
   companyId     String?   @map("company_id")
   name          String?
+  username      String?   @map("username")
   email         String?   @unique
   password      String?
   image         String?
@@ -94,6 +108,7 @@ model User {
   stockTransfers  StockTransfer[]  @relation("created_stock_transfers")
   movements       InventoryMovement[] @relation("created_movements")
 
+  @@unique([companyId, username])
   @@index([companyId])
   @@map("users")
 }

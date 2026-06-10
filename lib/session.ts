@@ -4,6 +4,7 @@ import type { UserRole } from "@prisma/client";
 export interface SessionUser {
   id: string;
   name?: string | null;
+  username?: string | null;
   email?: string | null;
   image?: string | null;
   role: UserRole;
@@ -24,7 +25,16 @@ export async function requireAuth(): Promise<SessionUser> {
   return user;
 }
 
-// ── Require auth + companyId ───────────────────────────────────────────────
+// ── Require a Super Admin (global, no company) ─────────────────────────────
+export async function requireSuperAdmin(): Promise<SessionUser> {
+  const user = await requireAuth();
+  if (user.role !== "SUPER_ADMIN") {
+    throw new AuthError("Super Admin access required", 403);
+  }
+  return user;
+}
+
+// ── Require auth + companyId (any company-scoped user) ─────────────────────
 export async function requireCompanyUser(): Promise<
   SessionUser & { companyId: string }
 > {
@@ -33,7 +43,7 @@ export async function requireCompanyUser(): Promise<
   return user as SessionUser & { companyId: string };
 }
 
-// ── Require specific roles ─────────────────────────────────────────────────
+// ── Require specific roles within a company ────────────────────────────────
 export async function requireRole(
   ...roles: UserRole[]
 ): Promise<SessionUser & { companyId: string }> {
