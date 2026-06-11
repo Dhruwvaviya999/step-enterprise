@@ -193,6 +193,7 @@ Variants contain:
 
 - Size
 - Color
+- Size Type
 - Shop Quantity
 - Godown Quantity
 - Min Stock
@@ -203,10 +204,26 @@ Size is stored as:
 size String
 ```
 
+Size Type is a fixed category, stored as an enum (default BIG):
+
+```prisma
+enum SizeType {
+  BIG
+  SMALL
+}
+
+sizeType SizeType @default(BIG)
+```
+
+Size + Color + Size Type together identify a variant:
+
+```prisma
+@@unique([companyId, productId, size, color, sizeType])
+```
+
 Do not create:
 
 - sizeNumber
-- sizeType
 
 ---
 

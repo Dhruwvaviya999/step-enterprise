@@ -24,8 +24,8 @@ export default async function SettingsPage() {
           <TriangleAlert />
           <AlertTitle>No company associated</AlertTitle>
           <AlertDescription>
-            Your account isn&apos;t linked to a company, so there are no settings
-            to manage.
+            Your account isn&apos;t linked to a company, so there are no
+            settings to manage.
           </AlertDescription>
         </Alert>
       </div>
@@ -69,7 +69,7 @@ export default async function SettingsPage() {
   const canEdit = user.role === "ADMIN";
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">
           Company Settings

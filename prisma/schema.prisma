@@ -18,6 +18,11 @@ enum StockLocation {
   GODOWN
 }
 
+enum SizeType {
+  BIG
+  SMALL
+}
+
 enum PurchaseOrderStatus {
   DRAFT
   PENDING
@@ -245,6 +250,7 @@ model ProductVariant {
 
   size        String   @map("size")
   color       String   @map("color")
+  sizeType    SizeType @default(BIG) @map("size_type")
 
   shopQty     Int      @default(0) @map("shop_qty")
   godownQty   Int      @default(0) @map("godown_qty")
@@ -258,7 +264,7 @@ model ProductVariant {
   transfers     StockTransfer[]
   movements     InventoryMovement[]
 
-  @@unique([companyId, productId, size, color])
+  @@unique([companyId, productId, size, color, sizeType])
   @@index([companyId])
   @@index([productId])
   @@map("product_variants")
