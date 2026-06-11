@@ -94,15 +94,12 @@ export default function RegisterCompanyPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="-ml-2"
-        render={<Link href="/super-admin" />}
-      >
-        <ArrowLeft className="size-4" />
-        Back to companies
-      </Button>
+      <Link href="/super-admin">
+          <Button className="mb-4" variant="ghost">
+            <ArrowLeft className="size-4" />
+            Back to companies
+          </Button>
+        </Link>
 
       <Card>
         <CardHeader>
