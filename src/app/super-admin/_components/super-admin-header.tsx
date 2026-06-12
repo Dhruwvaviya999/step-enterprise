@@ -17,7 +17,7 @@ export function SuperAdminHeader({ email }: { email: string | null }) {
             <BrandLogo />
           </Link>
           <Badge variant="secondary" className="hidden sm:inline-flex">
-            Platform admin
+            Super Admin Platform
           </Badge>
         </div>
 

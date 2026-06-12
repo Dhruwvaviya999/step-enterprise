@@ -59,10 +59,12 @@ export default async function SuperAdminDashboardPage() {
             Register and manage the companies on the platform.
           </p>
         </div>
-        <Button render={<Link href="/super-admin/companies/new" />}>
-          <Plus className="size-4" />
-          Register company
-        </Button>
+        <Link href="/super-admin/companies/new">
+          <Button>
+            <Plus className="size-4" />
+            Register company
+          </Button>
+        </Link>
       </div>
 
       <Card>
@@ -86,10 +88,12 @@ export default async function SuperAdminDashboardPage() {
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
-                <Button render={<Link href="/super-admin/companies/new" />}>
-                  <Plus className="size-4" />
-                  Register company
-                </Button>
+                <Link href="/super-admin/companies/new">
+                  <Button>
+                    <Plus className="size-4" />
+                    Register company
+                  </Button>
+                </Link>
               </EmptyContent>
             </Empty>
           ) : (
